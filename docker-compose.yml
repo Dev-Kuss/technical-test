@@ -26,6 +26,18 @@ services:
     networks:
       - mili-network
 
+  frontend:
+    build:
+      context: ./technical-test-front
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - product-service
+      - price-service
+    networks:
+      - mili-network
+
   postgres:
     image: 'postgres:latest'
     environment:
@@ -50,3 +62,4 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local

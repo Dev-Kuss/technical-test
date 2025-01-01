@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 @Tag(name = "Product Controller", description = "APIs for product management")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class ProductController {
     
     private final ProductService productService;
