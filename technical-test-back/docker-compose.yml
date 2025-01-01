@@ -1,7 +1,9 @@
+version: '3.8'
+
 services:
   product-service:
     build: 
-      context: ./technical-test-back/product-service
+      context: ./product-service
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
@@ -10,21 +12,16 @@ services:
       - SPRING_DATASOURCE_USERNAME=myuser
       - SPRING_DATASOURCE_PASSWORD=secret
     depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - mili-network
+      - postgres
 
   price-service:
     build:
-      context: ./technical-test-back/price-service
+      context: ./price-service
       dockerfile: Dockerfile
     ports:
       - "8081:8081"
     depends_on:
       - product-service
-    networks:
-      - mili-network
 
   postgres:
     image: 'postgres:latest'
@@ -36,17 +33,6 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - mili-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myuser -d product_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-networks:
-  mili-network:
-    driver: bridge
 
 volumes:
   postgres_data:
