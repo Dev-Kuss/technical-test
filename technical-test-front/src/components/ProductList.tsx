@@ -4,7 +4,8 @@ import { ProductService } from '../services/api';
 import { 
     Table, TableBody, TableCell, TableContainer, 
     TableHead, TableRow, Paper, IconButton,
-    Typography, Box, Chip
+    Typography, Box, Chip, Dialog, DialogTitle,
+    DialogContent, DialogActions, Button
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -12,6 +13,7 @@ import EditIcon from '@mui/icons-material/Edit';
 interface ProductListProps {
     onEdit: (product: Product) => void;
     refreshTrigger?: number;
+    onDelete?: () => void;
 }
 
 const calculateShippingCost = (product: Product): number => {
@@ -31,20 +33,22 @@ const calculateTotalPrice = (product: Product): number => {
     return basePrice + shippingCost;
 };
 
-export const ProductList = ({ onEdit, refreshTrigger }: ProductListProps) => {
+export const ProductList = ({ onEdit, refreshTrigger, onDelete }: ProductListProps) => {
     const [products, setProducts] = useState<Product[]>([]);
     const [averagePrice, setAveragePrice] = useState<number>(0);
     const [mostExpensive, setMostExpensive] = useState<Product | null>(null);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState<number | null>(null);
 
     const loadProducts = async () => {
         try {
-            const [productsData, avgPrice, expensiveProduct] = await Promise.all([
-                ProductService.getAllProducts(),
-                ProductService.getAveragePrice(),
-                ProductService.getMostExpensiveProduct()
-            ]);
+            const productsData = await ProductService.getAllProducts();
             setProducts(productsData);
+
+            const avgPrice = await ProductService.getAveragePrice();
             setAveragePrice(avgPrice);
+
+            const expensiveProduct = await ProductService.getMostExpensiveProduct();
             setMostExpensive(expensiveProduct);
         } catch (error) {
             console.error('Error loading products:', error);
@@ -55,13 +59,27 @@ export const ProductList = ({ onEdit, refreshTrigger }: ProductListProps) => {
         loadProducts();
     }, [refreshTrigger]);
 
-    const handleDelete = async (id: number) => {
+    const handleDeleteClick = (id: number) => {
+        setProductToDelete(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!productToDelete) return;
+        
         try {
-            await ProductService.deleteProduct(id);
-            await loadProducts();
+            await ProductService.deleteProduct(productToDelete);
+            setDeleteDialogOpen(false);
+            setProductToDelete(null);
+            onDelete?.();
         } catch (error) {
             console.error('Error deleting product:', error);
         }
+    };
+
+    const handleDeleteCancel = () => {
+        setDeleteDialogOpen(false);
+        setProductToDelete(null);
     };
 
     return (
@@ -70,12 +88,12 @@ export const ProductList = ({ onEdit, refreshTrigger }: ProductListProps) => {
                 <Typography variant="h6" gutterBottom>
                     Statistics
                 </Typography>
-                <Typography>
+                <Typography variant="subtitle1">
                     Average Price: ${averagePrice.toFixed(2)}
                 </Typography>
                 {mostExpensive && (
-                    <Typography>
-                        Most Expensive: {mostExpensive.name} (${mostExpensive.price.toFixed(2)})
+                    <Typography variant="subtitle1">
+                        Most Expensive Product: {mostExpensive.name} (${calculateTotalPrice(mostExpensive).toFixed(2)})
                     </Typography>
                 )}
             </Box>
@@ -148,7 +166,10 @@ export const ProductList = ({ onEdit, refreshTrigger }: ProductListProps) => {
                                         <IconButton onClick={() => onEdit(product)}>
                                             <EditIcon />
                                         </IconButton>
-                                        <IconButton onClick={() => product.id && handleDelete(product.id)}>
+                                        <IconButton 
+                                            onClick={() => product.id && handleDeleteClick(product.id)}
+                                            disabled={!product.id}
+                                        >
                                             <DeleteIcon />
                                         </IconButton>
                                     </TableCell>
@@ -158,6 +179,22 @@ export const ProductList = ({ onEdit, refreshTrigger }: ProductListProps) => {
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            <Dialog
+                open={deleteDialogOpen}
+                onClose={handleDeleteCancel}
+            >
+                <DialogTitle>Confirm Delete</DialogTitle>
+                <DialogContent>
+                    Are you sure you want to delete this product?
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleDeleteCancel}>Cancel</Button>
+                    <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

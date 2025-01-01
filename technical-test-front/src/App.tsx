@@ -8,6 +8,7 @@ import { ProductService } from './services/api'
 function App() {
   const [openForm, setOpenForm] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleEditProduct = async (product: Product) => {
     setSelectedProduct(product);
@@ -26,6 +27,7 @@ function App() {
       }
       setOpenForm(false);
       setSelectedProduct(undefined);
+      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Error saving product:', error);
     }
@@ -46,7 +48,11 @@ function App() {
 
       <Container>
         <Box sx={{ mt: 4 }}>
-          <ProductList onEdit={handleEditProduct} />
+          <ProductList 
+            onEdit={handleEditProduct} 
+            refreshTrigger={refreshTrigger} 
+            onDelete={() => setRefreshTrigger(prev => prev + 1)} 
+          />
         </Box>
 
         <ProductForm
