@@ -3,7 +3,7 @@ import {
     Dialog, DialogTitle, DialogContent, DialogActions,
     TextField, Button, FormControl, InputLabel,
     Select, MenuItem, FormControlLabel, Switch,
-    SelectChangeEvent
+    SelectChangeEvent, Box, Typography
 } from '@mui/material';
 import { Product, PhysicalProduct, DigitalProduct } from '../types/Product';
 
@@ -106,15 +106,27 @@ export const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps
                     onChange={(e) => setPrice(e.target.value)}
                 />
 
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={onSale}
-                            onChange={(e) => setOnSale(e.target.checked)}
-                        />
-                    }
-                    label="On Sale"
-                />
+                <Box sx={{ mt: 2, mb: 1 }}>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={onSale}
+                                onChange={(e) => setOnSale(e.target.checked)}
+                                color="success"
+                            />
+                        }
+                        label={
+                            <Box>
+                                <Typography>On Sale</Typography>
+                                {onSale && (
+                                    <Typography variant="caption" color="success.main">
+                                        10% discount will be applied
+                                    </Typography>
+                                )}
+                            </Box>
+                        }
+                    />
+                </Box>
 
                 {type === 'PhysicalProduct' ? (
                     <TextField

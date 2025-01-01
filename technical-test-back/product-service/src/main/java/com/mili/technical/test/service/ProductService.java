@@ -49,7 +49,13 @@ public class ProductService {
     
     @Transactional(readOnly = true)
     public Product getMostExpensiveProduct() {
-        return productRepository.findMostExpensiveProduct()
+        List<Product> products = getAllProducts();
+        if (products.isEmpty()) {
+            throw new RuntimeException("No products found");
+        }
+        
+        return products.stream()
+                .max((p1, p2) -> p1.calculateTotal().compareTo(p2.calculateTotal()))
                 .orElseThrow(() -> new RuntimeException("No products found"));
     }
     
