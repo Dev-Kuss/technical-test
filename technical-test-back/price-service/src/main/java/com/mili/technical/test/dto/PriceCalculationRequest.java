@@ -3,9 +3,11 @@ package com.mili.technical.test.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
+import lombok.Builder;
 import java.math.BigDecimal;
 
 @Data
+@Builder
 public class PriceCalculationRequest {
     @NotNull
     @Positive
