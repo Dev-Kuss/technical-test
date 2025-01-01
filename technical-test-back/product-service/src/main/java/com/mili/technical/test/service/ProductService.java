@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -36,7 +35,6 @@ public class ProductService {
         Product existingProduct = getProductById(id);
         
         existingProduct.setName(product.getName());
-        existingProduct.setPrice(product.getPrice());
         existingProduct.setOnSale(product.isOnSale());
         
         return productRepository.save(existingProduct);
@@ -45,22 +43,5 @@ public class ProductService {
     @Transactional
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
-    }
-    
-    @Transactional(readOnly = true)
-    public Product getMostExpensiveProduct() {
-        List<Product> products = getAllProducts();
-        if (products.isEmpty()) {
-            throw new RuntimeException("No products found");
-        }
-        
-        return products.stream()
-                .max((p1, p2) -> p1.calculateTotal().compareTo(p2.calculateTotal()))
-                .orElseThrow(() -> new RuntimeException("No products found"));
-    }
-    
-    @Transactional(readOnly = true)
-    public BigDecimal getAveragePrice() {
-        return productRepository.calculateAveragePrice();
     }
 }

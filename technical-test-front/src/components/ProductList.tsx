@@ -42,13 +42,14 @@ export const ProductList = ({ onEdit, refreshTrigger, onDelete }: ProductListPro
 
     const loadProducts = async () => {
         try {
-            const productsData = await ProductService.getAllProducts();
+            const [productsData, avgPrice, expensiveProduct] = await Promise.all([
+                ProductService.getAllProducts(),
+                ProductService.getAveragePrice(),
+                ProductService.getMostExpensiveProduct()
+            ]);
+            
             setProducts(productsData);
-
-            const avgPrice = await ProductService.getAveragePrice();
             setAveragePrice(avgPrice);
-
-            const expensiveProduct = await ProductService.getMostExpensiveProduct();
             setMostExpensive(expensiveProduct);
         } catch (error) {
             console.error('Error loading products:', error);

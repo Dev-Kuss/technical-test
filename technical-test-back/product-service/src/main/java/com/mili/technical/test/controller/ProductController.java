@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -45,21 +44,9 @@ public class ProductController {
     }
     
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a product")
+    @Operation(summary = "Delete a product by ID")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
-    }
-    
-    @GetMapping("/most-expensive")
-    @Operation(summary = "Get the most expensive product")
-    public ResponseEntity<Product> getMostExpensiveProduct() {
-        return ResponseEntity.ok(productService.getMostExpensiveProduct());
-    }
-    
-    @GetMapping("/average-price")
-    @Operation(summary = "Get the average price of all products")
-    public ResponseEntity<BigDecimal> getAveragePrice() {
-        return ResponseEntity.ok(productService.getAveragePrice());
     }
 }
