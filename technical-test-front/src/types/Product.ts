@@ -6,12 +6,12 @@ export interface BaseProduct {
 }
 
 export interface PhysicalProduct extends BaseProduct {
-    '@type': 'PhysicalProduct';
+    product_type: 'PHYSICAL';
     weight: number;
 }
 
 export interface DigitalProduct extends BaseProduct {
-    '@type': 'DigitalProduct';
+    product_type: 'DIGITAL';
     sizeMB: number;
 }
 

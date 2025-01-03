@@ -6,11 +6,13 @@ import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @DiscriminatorValue("DIGITAL")
+@JsonTypeName("DIGITAL")
 public class DigitalProduct extends Product {
     
     @Column(name = "size_mb")
@@ -18,6 +20,9 @@ public class DigitalProduct extends Product {
     
     @Override
     public BigDecimal calculateTotal() {
-        return calculateDiscount(); // Digital products have no shipping cost
+        BigDecimal basePrice = calculateDiscount();
+        // Add storage cost based on size
+        BigDecimal storageCost = BigDecimal.valueOf(sizeMB * 0.1); // $0.10 per MB
+        return basePrice.add(storageCost);
     }
 }

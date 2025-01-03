@@ -1,28 +1,6 @@
 version: '3.8'
 
 services:
-  product-service:
-    build: 
-      context: ./product-service
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/product_db
-      - SPRING_DATASOURCE_USERNAME=myuser
-      - SPRING_DATASOURCE_PASSWORD=secret
-    depends_on:
-      - postgres
-
-  price-service:
-    build:
-      context: ./price-service
-      dockerfile: Dockerfile
-    ports:
-      - "8081:8081"
-    depends_on:
-      - product-service
-
   postgres:
     image: 'postgres:latest'
     environment:
@@ -33,6 +11,29 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  product-service:
+    build: ./product-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/product_db
+      - SPRING_DATASOURCE_USERNAME=myuser
+      - SPRING_DATASOURCE_PASSWORD=secret
+    depends_on:
+      - postgres
+
+  price-service:
+    build: ./price-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/product_db
+      - SPRING_DATASOURCE_USERNAME=myuser
+      - SPRING_DATASOURCE_PASSWORD=secret
+    depends_on:
+      - product-service
+      - postgres
 
 volumes:
   postgres_data:

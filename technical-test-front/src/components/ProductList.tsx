@@ -128,7 +128,7 @@ export const ProductList = ({ onEdit, refreshTrigger, onDelete }: ProductListPro
                                     } : {}}
                                 >
                                     <TableCell>{product.name}</TableCell>
-                                    <TableCell>{product['@type']}</TableCell>
+                                    <TableCell>{product.product_type}</TableCell>
                                     <TableCell>${product.price.toFixed(2)}</TableCell>
                                     <TableCell>
                                         {product.onSale ? (

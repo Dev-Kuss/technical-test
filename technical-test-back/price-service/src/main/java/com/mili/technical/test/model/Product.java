@@ -6,10 +6,10 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "product_type", include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = PhysicalProduct.class, name = "PhysicalProduct"),
-    @JsonSubTypes.Type(value = DigitalProduct.class, name = "DigitalProduct")
+    @JsonSubTypes.Type(value = PhysicalProduct.class, name = "PHYSICAL"),
+    @JsonSubTypes.Type(value = DigitalProduct.class, name = "DIGITAL")
 })
 public abstract class Product {
     private Long id;
@@ -17,7 +17,12 @@ public abstract class Product {
     private BigDecimal price;
     private boolean onSale;
     
-    public BigDecimal getPrice() {
+    public BigDecimal calculateDiscount() {
+        if (onSale) {
+            return price.multiply(BigDecimal.valueOf(0.9)); // 10% discount
+        }
         return price;
     }
+    
+    public abstract BigDecimal calculateTotal();
 }

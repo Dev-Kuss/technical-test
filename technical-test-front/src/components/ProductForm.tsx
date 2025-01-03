@@ -15,7 +15,7 @@ interface ProductFormProps {
 }
 
 export const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps) => {
-    const [type, setType] = useState<'PhysicalProduct' | 'DigitalProduct'>('PhysicalProduct');
+    const [type, setType] = useState<'PHYSICAL' | 'DIGITAL'>('PHYSICAL');
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [onSale, setOnSale] = useState(false);
@@ -24,7 +24,7 @@ export const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps
 
     useEffect(() => {
         if (product) {
-            setType(product['@type']);
+            setType(product.product_type);
             setName(product.name);
             setPrice(product.price.toString());
             setOnSale(product.onSale);
@@ -45,16 +45,16 @@ export const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps
         };
 
         let newProduct: Omit<Product, 'id'>;
-        if (type === 'PhysicalProduct') {
+        if (type === 'PHYSICAL') {
             newProduct = {
                 ...baseProduct,
-                '@type': 'PhysicalProduct',
+                product_type: 'PHYSICAL',
                 weight: parseFloat(weight)
             } as PhysicalProduct;
         } else {
             newProduct = {
                 ...baseProduct,
-                '@type': 'DigitalProduct',
+                product_type: 'DIGITAL',
                 sizeMB: parseFloat(sizeMB)
             } as DigitalProduct;
         }
@@ -64,7 +64,7 @@ export const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps
     };
 
     const handleClose = () => {
-        setType('PhysicalProduct');
+        setType('PHYSICAL');
         setName('');
         setPrice('');
         setOnSale(false);
@@ -74,7 +74,7 @@ export const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps
     };
 
     const handleTypeChange = (event: SelectChangeEvent) => {
-        setType(event.target.value as 'PhysicalProduct' | 'DigitalProduct');
+        setType(event.target.value as 'PHYSICAL' | 'DIGITAL');
     };
 
     return (
@@ -84,8 +84,8 @@ export const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps
                 <FormControl fullWidth margin="normal">
                     <InputLabel>Type</InputLabel>
                     <Select value={type} onChange={handleTypeChange}>
-                        <MenuItem value="PhysicalProduct">Physical Product</MenuItem>
-                        <MenuItem value="DigitalProduct">Digital Product</MenuItem>
+                        <MenuItem value="PHYSICAL">Physical Product</MenuItem>
+                        <MenuItem value="DIGITAL">Digital Product</MenuItem>
                     </Select>
                 </FormControl>
 
@@ -128,7 +128,7 @@ export const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps
                     />
                 </Box>
 
-                {type === 'PhysicalProduct' ? (
+                {type === 'PHYSICAL' ? (
                     <TextField
                         fullWidth
                         margin="normal"

@@ -11,10 +11,10 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 @Table(name = "products")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "product_type", discriminatorType = DiscriminatorType.STRING)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "product_type", include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = PhysicalProduct.class, name = "PhysicalProduct"),
-    @JsonSubTypes.Type(value = DigitalProduct.class, name = "DigitalProduct")
+    @JsonSubTypes.Type(value = PhysicalProduct.class, name = "PHYSICAL"),
+    @JsonSubTypes.Type(value = DigitalProduct.class, name = "DIGITAL")
 })
 public abstract class Product {
     
@@ -31,12 +31,12 @@ public abstract class Product {
     @Column(name = "on_sale")
     private boolean onSale;
     
-    public abstract BigDecimal calculateTotal();
-    
     public BigDecimal calculateDiscount() {
         if (onSale) {
-            return price.multiply(new BigDecimal("0.90")); // 10% discount
+            return price.multiply(BigDecimal.valueOf(0.9)); // 10% discount
         }
         return price;
     }
+    
+    public abstract BigDecimal calculateTotal();
 }

@@ -16,7 +16,7 @@ export const ProductService = {
         return response.data;
     },
 
-    createProduct: async (product: Product): Promise<Product> => {
+    createProduct: async (product: Omit<Product, 'id'>): Promise<Product> => {
         const response = await axios.post(PRODUCT_API_URL, product);
         return response.data;
     },
