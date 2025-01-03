@@ -28,6 +28,8 @@ public class ProductService {
     
     @Transactional
     public Product createProduct(Product product) {
+        // Ensure the product has no ID set
+        product.setId(null);
         return productRepository.save(product);
     }
     

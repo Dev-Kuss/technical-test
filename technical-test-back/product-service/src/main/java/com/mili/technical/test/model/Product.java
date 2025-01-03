@@ -19,7 +19,9 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 public abstract class Product {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "products_id_seq")
+    @SequenceGenerator(name = "products_id_seq", sequenceName = "products_id_seq", allocationSize = 1)
+    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
     
     @Column(nullable = false)
