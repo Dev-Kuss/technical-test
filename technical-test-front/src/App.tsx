@@ -4,6 +4,7 @@ import { ProductList } from './components/ProductList'
 import { ProductForm } from './components/ProductForm'
 import { Product } from './types/Product'
 import { ProductService } from './services/api'
+import { NotificationToast } from './components/NotificationToast';
 
 function App() {
   const [openForm, setOpenForm] = useState(false);
@@ -34,7 +35,8 @@ function App() {
   };
 
   return (
-    <>
+    <div className="App">
+      <NotificationToast />
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -65,7 +67,7 @@ function App() {
           product={selectedProduct}
         />
       </Container>
-    </>
+    </div>
   )
 }
 

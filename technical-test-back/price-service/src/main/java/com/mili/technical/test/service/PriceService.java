@@ -2,6 +2,7 @@ package com.mili.technical.test.service;
 
 import com.mili.technical.test.model.Product;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
@@ -15,17 +16,18 @@ import java.util.List;
 public class PriceService {
     
     private final RestTemplate restTemplate;
-    private static final String PRODUCT_SERVICE_URL = "http://product-service:8080/api/products";
+    @Value("${product.service.url}")
+    private final String productServiceUrl;
 
     public Product getMostExpensiveProduct() {
-        Product[] products = restTemplate.getForObject(PRODUCT_SERVICE_URL, Product[].class);
+        Product[] products = restTemplate.getForObject(productServiceUrl + "/api/products", Product[].class);
         return Arrays.stream(products)
                 .max(Comparator.comparing(Product::getPrice))
                 .orElseThrow(() -> new RuntimeException("No products found"));
     }
 
     public BigDecimal getAveragePrice() {
-        Product[] products = restTemplate.getForObject(PRODUCT_SERVICE_URL, Product[].class);
+        Product[] products = restTemplate.getForObject(productServiceUrl + "/api/products", Product[].class);
         List<Product> productList = Arrays.asList(products);
         
         if (productList.isEmpty()) {

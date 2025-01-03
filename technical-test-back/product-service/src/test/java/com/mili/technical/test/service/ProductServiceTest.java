@@ -1,5 +1,6 @@
 package com.mili.technical.test.service;
 
+import com.mili.technical.test.event.ProductEventPublisher;
 import com.mili.technical.test.model.Product;
 import com.mili.technical.test.model.PhysicalProduct;
 import com.mili.technical.test.model.DigitalProduct;
@@ -24,11 +25,14 @@ class ProductServiceTest {
     @Mock
     private ProductRepository productRepository;
 
+    @Mock
+    private ProductEventPublisher eventPublisher;
+
     private ProductService productService;
 
     @BeforeEach
     void setUp() {
-        productService = new ProductService(productRepository);
+        productService = new ProductService(productRepository, eventPublisher);
     }
 
     @Test
@@ -106,6 +110,7 @@ class ProductServiceTest {
         // Assert
         assertEquals(savedProduct, createdProduct);
         verify(productRepository).save(productToCreate);
+        verify(eventPublisher).publishProductCreated(savedProduct);
     }
 
     @Test
@@ -134,17 +139,103 @@ class ProductServiceTest {
         assertEquals("New Name", result.getName());
         assertTrue(result.isOnSale());
         verify(productRepository).save(any(Product.class));
+        verify(eventPublisher).publishProductUpdated(updatedProduct);
     }
 
     @Test
     void deleteProduct_ShouldCallRepositoryDelete() {
         // Arrange
         Long productId = 1L;
+        PhysicalProduct existingProduct = new PhysicalProduct();
+        existingProduct.setId(productId);
+        when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
 
         // Act
         productService.deleteProduct(productId);
 
         // Assert
         verify(productRepository).deleteById(productId);
+        verify(eventPublisher).publishProductDeleted(existingProduct);
+    }
+
+    @Test
+    void createProduct_ShouldSaveAndPublishEvent() {
+        // Arrange
+        PhysicalProduct product = new PhysicalProduct();
+        product.setName("Test Product");
+        product.setWeight(1.5);
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+
+        // Act
+        Product result = productService.createProduct(product);
+
+        // Assert
+        assertNotNull(result);
+        verify(productRepository).save(product);
+        verify(eventPublisher).publishProductCreated(product);
+    }
+
+    @Test
+    void updateProduct_ShouldUpdateAndPublishEvent() {
+        // Arrange
+        Long id = 1L;
+        PhysicalProduct existingProduct = new PhysicalProduct();
+        existingProduct.setId(id);
+        existingProduct.setName("Old Name");
+        existingProduct.setWeight(1.0);
+
+        PhysicalProduct updatedProduct = new PhysicalProduct();
+        updatedProduct.setName("New Name");
+        updatedProduct.setWeight(2.0);
+
+        when(productRepository.findById(id)).thenReturn(Optional.of(existingProduct));
+        when(productRepository.save(any(Product.class))).thenReturn(updatedProduct);
+
+        // Act
+        Product result = productService.updateProduct(id, updatedProduct);
+
+        // Assert
+        assertNotNull(result);
+        verify(productRepository).findById(id);
+        verify(productRepository).save(any(Product.class));
+        verify(eventPublisher).publishProductUpdated(any(Product.class));
+    }
+
+    @Test
+    void deleteProduct_ShouldDeleteAndPublishEvent() {
+        // Arrange
+        Long id = 1L;
+        PhysicalProduct existingProduct = new PhysicalProduct();
+        existingProduct.setId(id);
+        existingProduct.setName("Test Product");
+        existingProduct.setWeight(1.0);
+        when(productRepository.findById(id)).thenReturn(Optional.of(existingProduct));
+
+        // Act
+        productService.deleteProduct(id);
+
+        // Assert
+        verify(productRepository).findById(id);
+        verify(productRepository).delete(existingProduct);
+        verify(eventPublisher).publishProductDeleted(existingProduct);
+    }
+
+    @Test
+    void createDigitalProduct_ShouldSaveAndPublishEvent() {
+        // Arrange
+        DigitalProduct product = new DigitalProduct();
+        product.setName("Digital Test Product");
+        product.setSizeMB(100.0);
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+
+        // Act
+        Product result = productService.createProduct(product);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result instanceof DigitalProduct);
+        assertEquals(100.0, ((DigitalProduct) result).getSizeMB());
+        verify(productRepository).save(product);
+        verify(eventPublisher).publishProductCreated(product);
     }
 }
