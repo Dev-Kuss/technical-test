@@ -1,17 +1,98 @@
+networks:
+  mili-network:
+    driver: bridge
+
 services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: productdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d productdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mili-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"  # Porta AMQP
+      - "15672:15672"  # Porta da interface web
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - mili-network
+
   product-service:
-    build: 
+    build:
       context: ./technical-test-back/product-service
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/product_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/productdb
       - SPRING_DATASOURCE_USERNAME=myuser
       - SPRING_DATASOURCE_PASSWORD=secret
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
     depends_on:
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - mili-network
+
+  notification-service:
+    build:
+      context: ./technical-test-back/notification-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_RETRY_ENABLED=true
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_RETRY_INITIAL_INTERVAL=2000
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_RETRY_MAX_ATTEMPTS=5
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_RETRY_MULTIPLIER=2
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - mili-network
+
+  frontend:
+    build:
+      context: ./technical-test-front
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"  # Nginx usa a porta 80 internamente
+    environment:
+      - VITE_API_URL=/api
+    depends_on:
+      - product-service
     networks:
       - mili-network
 
@@ -21,32 +102,18 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8081:8081"
+    environment:
+      - PRODUCT_SERVICE_URL=http://product-service:8080
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
     depends_on:
       - product-service
+      - rabbitmq
     networks:
       - mili-network
-
-  postgres:
-    image: 'postgres:latest'
-    environment:
-      - 'POSTGRES_DB=product_db'
-      - 'POSTGRES_PASSWORD=secret'
-      - 'POSTGRES_USER=myuser'
-    ports:
-      - '5432:5432'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - mili-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myuser -d product_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-networks:
-  mili-network:
-    driver: bridge
 
 volumes:
   postgres_data:
+  rabbitmq_data:

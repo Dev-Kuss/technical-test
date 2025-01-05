@@ -6,11 +6,13 @@ import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @DiscriminatorValue("PHYSICAL")
+@JsonTypeName("PHYSICAL")
 public class PhysicalProduct extends Product {
     
     @Column(name = "weight")
