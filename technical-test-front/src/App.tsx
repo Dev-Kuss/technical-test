@@ -4,7 +4,6 @@ import { ProductList } from './components/ProductList'
 import { ProductForm } from './components/ProductForm'
 import { Product } from './types/Product'
 import { ProductService } from './services/api'
-import { NotificationToast } from './components/NotificationToast';
 
 function App() {
   const [openForm, setOpenForm] = useState(false);
@@ -36,7 +35,6 @@ function App() {
 
   return (
     <div className="App">
-      <NotificationToast />
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -51,24 +49,23 @@ function App() {
       <Container>
         <Box sx={{ mt: 4 }}>
           <ProductList 
-            onEdit={handleEditProduct} 
-            refreshTrigger={refreshTrigger} 
-            onDelete={() => setRefreshTrigger(prev => prev + 1)} 
+            refreshTrigger={refreshTrigger}
+            onEditProduct={handleEditProduct}
           />
         </Box>
-
-        <ProductForm
-          open={openForm}
-          onClose={() => {
-            setOpenForm(false);
-            setSelectedProduct(undefined);
-          }}
-          onSave={handleSaveProduct}
-          product={selectedProduct}
-        />
       </Container>
+
+      <ProductForm
+        open={openForm}
+        onClose={() => {
+          setOpenForm(false);
+          setSelectedProduct(undefined);
+        }}
+        onSave={handleSaveProduct}
+        product={selectedProduct}
+      />
     </div>
-  )
+  );
 }
 
 export default App

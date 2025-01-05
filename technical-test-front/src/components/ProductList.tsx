@@ -11,13 +11,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
 interface ProductListProps {
-    onEdit: (product: Product) => void;
+    onEditProduct: (product: Product) => void;
     refreshTrigger?: number;
-    onDelete?: () => void;
 }
 
 const calculateShippingCost = (product: Product): number => {
-    if ('weight' in product) {
+    if (product.product_type === 'PHYSICAL' && 'weight' in product) {
         return product.weight * 10;
     }
     return 0;
@@ -33,7 +32,7 @@ const calculateTotalPrice = (product: Product): number => {
     return basePrice + shippingCost;
 };
 
-export const ProductList = ({ onEdit, refreshTrigger, onDelete }: ProductListProps) => {
+export const ProductList = ({ onEditProduct, refreshTrigger }: ProductListProps) => {
     const [products, setProducts] = useState<Product[]>([]);
     const [averagePrice, setAveragePrice] = useState<number>(0);
     const [mostExpensive, setMostExpensive] = useState<Product | null>(null);
@@ -66,16 +65,16 @@ export const ProductList = ({ onEdit, refreshTrigger, onDelete }: ProductListPro
     };
 
     const handleDeleteConfirm = async () => {
-        if (!productToDelete) return;
-        
-        try {
-            await ProductService.deleteProduct(productToDelete);
-            setDeleteDialogOpen(false);
-            setProductToDelete(null);
-            onDelete?.();
-        } catch (error) {
-            console.error('Error deleting product:', error);
+        if (productToDelete !== null) {
+            try {
+                await ProductService.deleteProduct(productToDelete);
+                await loadProducts();
+            } catch (error) {
+                console.error('Error deleting product:', error);
+            }
         }
+        setDeleteDialogOpen(false);
+        setProductToDelete(null);
     };
 
     const handleDeleteCancel = () => {
@@ -106,77 +105,36 @@ export const ProductList = ({ onEdit, refreshTrigger, onDelete }: ProductListPro
                             <TableCell>Name</TableCell>
                             <TableCell>Type</TableCell>
                             <TableCell>Base Price</TableCell>
-                            <TableCell>On Sale</TableCell>
-                            <TableCell>Discounted Price</TableCell>
-                            <TableCell>Shipping Cost</TableCell>
+                            <TableCell>Shipping</TableCell>
                             <TableCell>Total Price</TableCell>
-                            <TableCell>Details</TableCell>
+                            <TableCell>Status</TableCell>
                             <TableCell>Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {products.map((product) => {
-                            const shippingCost = calculateShippingCost(product);
-                            const discountedPrice = calculateDiscountedPrice(product.price, product.onSale);
-                            const totalPrice = calculateTotalPrice(product);
-                            
-                            return (
-                                <TableRow 
-                                    key={product.id}
-                                    sx={product.onSale ? { 
-                                        backgroundColor: 'rgba(76, 175, 80, 0.08)'
-                                    } : {}}
-                                >
-                                    <TableCell>{product.name}</TableCell>
-                                    <TableCell>{product.product_type}</TableCell>
-                                    <TableCell>${product.price.toFixed(2)}</TableCell>
-                                    <TableCell>
-                                        {product.onSale ? (
-                                            <Chip 
-                                                label="On Sale!" 
-                                                color="success" 
-                                                size="small"
-                                            />
-                                        ) : 'No'}
-                                    </TableCell>
-                                    <TableCell>
-                                        {product.onSale ? (
-                                            <Typography color="success.main">
-                                                ${discountedPrice.toFixed(2)}
-                                            </Typography>
-                                        ) : '-'}
-                                    </TableCell>
-                                    <TableCell>
-                                        {'weight' in product ? `$${shippingCost.toFixed(2)}` : '-'}
-                                    </TableCell>
-                                    <TableCell>
-                                        <Typography
-                                            color={product.onSale ? 'success.main' : 'inherit'}
-                                            fontWeight={product.onSale ? 'bold' : 'normal'}
-                                        >
-                                            ${totalPrice.toFixed(2)}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell>
-                                        {'weight' in product 
-                                            ? `Weight: ${product.weight}kg`
-                                            : `Size: ${product.sizeMB}MB`
-                                        }
-                                    </TableCell>
-                                    <TableCell>
-                                        <IconButton onClick={() => onEdit(product)}>
-                                            <EditIcon />
-                                        </IconButton>
-                                        <IconButton 
-                                            onClick={() => product.id && handleDeleteClick(product.id)}
-                                            disabled={!product.id}
-                                        >
-                                            <DeleteIcon />
-                                        </IconButton>
-                                    </TableCell>
-                                </TableRow>
-                            );
-                        })}
+                        {products.map((product) => (
+                            <TableRow key={product.id}>
+                                <TableCell>{product.name}</TableCell>
+                                <TableCell>{product.product_type}</TableCell>
+                                <TableCell>${product.price.toFixed(2)}</TableCell>
+                                <TableCell>${calculateShippingCost(product).toFixed(2)}</TableCell>
+                                <TableCell>${calculateTotalPrice(product).toFixed(2)}</TableCell>
+                                <TableCell>
+                                    <Chip 
+                                        label={product.onSale ? "On Sale" : "Regular Price"}
+                                        color={product.onSale ? "success" : "default"}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <IconButton onClick={() => onEditProduct(product)} color="primary">
+                                        <EditIcon />
+                                    </IconButton>
+                                    <IconButton onClick={() => handleDeleteClick(product.id!)} color="error">
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </TableCell>
+                            </TableRow>
+                        ))}
                     </TableBody>
                 </Table>
             </TableContainer>
@@ -191,9 +149,7 @@ export const ProductList = ({ onEdit, refreshTrigger, onDelete }: ProductListPro
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleDeleteCancel}>Cancel</Button>
-                    <Button onClick={handleDeleteConfirm} color="error" variant="contained">
-                        Delete
-                    </Button>
+                    <Button onClick={handleDeleteConfirm} color="error">Delete</Button>
                 </DialogActions>
             </Dialog>
         </Box>

@@ -15,11 +15,11 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
-@Tag(name = "Product Controller", description = "APIs for product management")
+@Slf4j
+@Tag(name = "Product API", description = "API for managing products")
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class ProductController {
     
@@ -49,21 +49,15 @@ public class ProductController {
     }
     
     @PutMapping("/{id}")
-    @Operation(summary = "Update an existing product")
+    @Operation(summary = "Update a product")
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
-        try {
-            log.info("Updating product with id {}: {}", id, objectMapper.writeValueAsString(product));
-            return ResponseEntity.ok(productService.updateProduct(id, product));
-        } catch (Exception e) {
-            log.error("Error updating product: {}", e.getMessage(), e);
-            throw new RuntimeException("Error updating product", e);
-        }
+        return ResponseEntity.ok(productService.updateProduct(id, product));
     }
     
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a product")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

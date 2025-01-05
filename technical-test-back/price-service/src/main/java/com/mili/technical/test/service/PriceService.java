@@ -12,12 +12,15 @@ import java.util.Comparator;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class PriceService {
     
     private final RestTemplate restTemplate;
-    @Value("${product.service.url}")
     private final String productServiceUrl;
+
+    public PriceService(RestTemplate restTemplate, @Value("${product.service.url}") String productServiceUrl) {
+        this.restTemplate = restTemplate;
+        this.productServiceUrl = productServiceUrl;
+    }
 
     public Product getMostExpensiveProduct() {
         Product[] products = restTemplate.getForObject(productServiceUrl + "/api/products", Product[].class);

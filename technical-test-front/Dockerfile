@@ -1,33 +1,44 @@
 # Build stage
-FROM node:18-alpine as build
+FROM node:18-alpine AS builder
+
+# Set working directory
 WORKDIR /app
+
+# Install dependencies first (better caching)
 COPY package*.json ./
-RUN npm install
+
+# Instalar dependências globais necessárias
+RUN npm install -g typescript vite @vitejs/plugin-react
+
+# Instalar dependências do projeto
+RUN npm install --legacy-peer-deps
+
+# Copy source files
 COPY . .
+
+# Set environment variables for build
+ENV NODE_ENV=production
+ENV VITE_API_URL=/api
+ENV VITE_PRICE_API_URL=/prices
+
+# Build the application
 RUN npm run build
 
 # Production stage
 FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Add configuration for WebSocket support
-RUN echo ' \
-server { \
-    listen 80; \
-    location / { \
-        root /usr/share/nginx/html; \
-        index index.html index.htm; \
-        try_files $uri $uri/ /index.html; \
-    } \
-    location /ws { \
-        proxy_pass http://notification-service:8082/ws; \
-        proxy_http_version 1.1; \
-        proxy_set_header Upgrade $http_upgrade; \
-        proxy_set_header Connection "upgrade"; \
-        proxy_set_header Host $host; \
-    } \
-}' > /etc/nginx/conf.d/default.conf
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
 
+# Copy built files from builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=3s \
+    CMD wget -q --spider http://localhost/ || exit 1
+
+# Expose port
 EXPOSE 80
+
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]

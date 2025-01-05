@@ -1,12 +1,15 @@
 import axios from 'axios';
 import { Product } from '../types/Product';
 
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+const PRICE_API_URL = import.meta.env.VITE_PRICE_API_URL || '/api/prices';
+
 const productApi = axios.create({
-    baseURL: 'http://localhost:8080/api'
+    baseURL: API_URL
 });
 
 const priceApi = axios.create({
-    baseURL: 'http://localhost:8081/api'
+    baseURL: PRICE_API_URL
 });
 
 export const ProductService = {
@@ -35,12 +38,12 @@ export const ProductService = {
     },
 
     getMostExpensiveProduct: async () => {
-        const response = await priceApi.get<Product>('/prices/most-expensive');
+        const response = await priceApi.get<Product>('/most-expensive');
         return response.data;
     },
 
     getAveragePrice: async () => {
-        const response = await priceApi.get<number>('/prices/average');
-        return response.data;
+        const response = await priceApi.get<string>('/average');
+        return parseFloat(response.data);
     }
 };

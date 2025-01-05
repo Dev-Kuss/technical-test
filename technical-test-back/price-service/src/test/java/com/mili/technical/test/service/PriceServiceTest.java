@@ -25,7 +25,7 @@ class PriceServiceTest {
 
     @BeforeEach
     void setUp() {
-        priceService = new PriceService(restTemplate);
+        priceService = new PriceService(restTemplate, "http://localhost:8080");
     }
 
     @Test

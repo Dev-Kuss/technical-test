@@ -25,17 +25,17 @@ public class ProductEventPublisher {
     private String deletedRoutingKey;
 
     public void publishProductCreated(Product product) {
-        ProductEvent event = new ProductEvent("CREATED", product);
+        ProductEvent event = new ProductEvent("PRODUCT_CREATED", product);
         rabbitTemplate.convertAndSend(exchange, createdRoutingKey, event);
     }
 
     public void publishProductUpdated(Product product) {
-        ProductEvent event = new ProductEvent("UPDATED", product);
+        ProductEvent event = new ProductEvent("PRODUCT_UPDATED", product);
         rabbitTemplate.convertAndSend(exchange, updatedRoutingKey, event);
     }
 
     public void publishProductDeleted(Product product) {
-        ProductEvent event = new ProductEvent("DELETED", product);
+        ProductEvent event = new ProductEvent("PRODUCT_DELETED", product);
         rabbitTemplate.convertAndSend(exchange, deletedRoutingKey, event);
     }
 }
