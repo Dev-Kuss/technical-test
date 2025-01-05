@@ -1,31 +1,82 @@
-# Mili Technical Test
+# Teste Técnico Mili
 
-A modern microservices-based e-commerce product management system built with Spring Boot and React.
+Esta é minha implementação do desafio técnico da Mili, desenvolvi um sistema de gerenciamento de produtos e-commerce baseado em microsserviços utilizando Spring Boot e React.
 
-## 🏗️ Architecture
+## 👋 Sobre o Projeto
 
-### Microservices
-- **Product Service** (Port 8080)
-  - Handles product CRUD operations
-  - Manages product metadata and basic information
-  - Base URL: `/api/products`
+O desafio era criar um sistema completo de gerenciamento de produtos e-commerce, e optei por uma arquitetura moderna de microsserviços para demonstrar tanto minhas habilidades técnicas quanto minha capacidade de tomar decisões arquiteturais.
 
-- **Price Service** (Port 8081)
-  - Handles price-related calculations
-  - Provides price statistics
-  - Base URL: `/api/prices`
+### Minha Abordagem
 
-- **Notification Service** (Port 8082)
-  - Handles asynchronous notifications
-  - Manages event-driven communications
-  - Base URL: `/api/notifications`
+Para este teste, desenvolvi um sistema capaz de:
+- Gerenciar produtos através de uma interface intuitiva
+- Processar atualizações de preços e estatísticas em tempo real
+- Gerenciar notificações para eventos importantes do sistema
+- Implementar diferentes estratégias de precificação
+- Suportar produtos físicos e digitais
 
-### Frontend Application (Port 80)
-- React-based SPA with TypeScript
-- Modern UI with Material-UI components
-- Responsive design for all devices
+Escolhi dividir a aplicação em microsserviços não apenas por ser uma tendência, mas porque isso demonstra minha capacidade de:
+- Projetar sistemas escaláveis e manuteníveis
+- Implementar lógica de negócios complexa em serviços distribuídos
+- Gerenciar comunicação entre serviços de forma eficiente
+- Aplicar práticas e padrões modernos de desenvolvimento
 
-## 🛠️ Technologies
+### Decisões Técnicas
+
+Na construção desta solução, tomei algumas decisões técnicas importantes:
+- Utilizei React com TypeScript para um frontend robusto
+- Implementei microsserviços com Spring Boot no backend
+- Integrei RabbitMQ para comunicação orientada a eventos
+- Utilizei PostgreSQL para armazenamento confiável de dados
+- Configurei Docker para facilitar implantação e testes
+
+O resultado é um sistema completamente funcional que não apenas atende aos requisitos do teste, mas também demonstra minha compreensão de arquitetura de software moderna e boas práticas.
+
+### O Que Ele Pode Fazer?
+
+Nosso sistema ajuda você a:
+- Gerenciar seu catálogo de produtos com uma interface intuitiva
+- Acompanhar preços e obter estatísticas automaticamente
+- Receber notificações instantâneas sobre mudanças importantes
+- Calcular preços com diferentes estratégias de desconto
+- Lidar com produtos físicos e digitais
+
+Dividimos a aplicação em pequenos serviços independentes (microsserviços) que trabalham juntos de forma harmoniosa. Isso significa que o sistema não é apenas poderoso, mas também confiável e fácil de escalar. Seja gerenciando uma pequena loja ou um grande marketplace, este sistema está preparado para atender suas necessidades!
+
+### Por Que Essa Abordagem?
+
+Escolhemos uma arquitetura de microsserviços porque ela nos dá a flexibilidade para:
+- Escalar cada parte do sistema independentemente
+- Fazer atualizações sem tempo de inatividade
+- Adicionar novos recursos sem afetar todo o sistema
+- Garantir alta disponibilidade e tolerância a falhas
+
+O frontend foi construído com React e Material-UI, oferecendo uma interface moderna e responsiva que é um prazer usar. O backend utiliza Spring Boot, nos dando uma base robusta para lidar com a lógica de negócios e gerenciamento de dados.
+
+## 🏗️ Arquitetura
+
+### Microsserviços
+- **Serviço de Produtos** (Porta 8080)
+  - Gerencia operações CRUD de produtos
+  - Administra metadados e informações básicas dos produtos
+  - URL Base: `/api/products`
+
+- **Serviço de Preços** (Porta 8081)
+  - Gerencia cálculos relacionados a preços
+  - Fornece estatísticas de preços
+  - URL Base: `/api/prices`
+
+- **Serviço de Notificações** (Porta 8082)
+  - Gerencia notificações assíncronas
+  - Administra comunicações orientadas a eventos
+  - URL Base: `/api/notifications`
+
+### Aplicação Frontend (Porta 80)
+- SPA baseada em React com TypeScript
+- Interface moderna com componentes Material-UI
+- Design responsivo para todos os dispositivos
+
+## 🛠️ Tecnologias
 
 ### Backend
 - **Java 17**
@@ -34,111 +85,111 @@ A modern microservices-based e-commerce product management system built with Spr
   - Spring Data JPA
   - Spring AMQP
   - Spring Validation
-- **PostgreSQL** - Primary database
-- **RabbitMQ** - Message broker
-- **Swagger/OpenAPI** - API documentation
-- **Flyway** - Database migrations
-- **JUnit 5 & Mockito** - Testing
+- **PostgreSQL** - Banco de dados principal
+- **RabbitMQ** - Broker de mensagens
+- **Swagger/OpenAPI** - Documentação da API
+- **Flyway** - Migrações de banco de dados
+- **JUnit 5 & Mockito** - Testes
 
 ### Frontend
 - **React 18**
 - **TypeScript**
-- **Vite** - Build tool
-- **Material-UI** - UI components
-- **Axios** - HTTP client
-- **React Query** - Data fetching
-- **Nginx** - Web server
+- **Vite** - Ferramenta de build
+- **Material-UI** - Componentes de UI
+- **Axios** - Cliente HTTP
+- **React Query** - Busca de dados
+- **Nginx** - Servidor web
 
 ### DevOps
 - **Docker** & Docker Compose
 - **GitHub Actions** - CI/CD
 
-## 🚀 Getting Started
+## 🚀 Começando
 
-### Prerequisites
+### Pré-requisitos
 - Docker & Docker Compose
-- Node.js 18+ (for local development)
-- Java 17 (for local development)
+- Node.js 18+ (para desenvolvimento local)
+- Java 17 (para desenvolvimento local)
 
-### Running the Application
+### Executando a Aplicação
 ```bash
 docker compose up -d
 ```
 
-The application will be available at:
+A aplicação estará disponível em:
 - Frontend: http://localhost
 - Swagger UI:
-  - Products: http://localhost:8080/swagger-ui.html
-  - Prices: http://localhost:8081/swagger-ui.html
-  - Notifications: http://localhost:8082/swagger-ui.html
+  - Produtos: http://localhost:8080/swagger-ui.html
+  - Preços: http://localhost:8081/swagger-ui.html
+  - Notificações: http://localhost:8082/swagger-ui.html
 
-### Credentials
+### Credenciais
 - **PostgreSQL**
-  - Database: product_db
-  - Username: myuser
-  - Password: secret
-  - Port: 5432
+  - Banco de dados: product_db
+  - Usuário: myuser
+  - Senha: secret
+  - Porta: 5432
 
 - **RabbitMQ**
-  - Management UI: http://localhost:15672
-  - Username: guest
-  - Password: guest
-  - AMQP Port: 5672
-  - Management Port: 15672
+  - Interface de Gerenciamento: http://localhost:15672
+  - Usuário: guest
+  - Senha: guest
+  - Porta AMQP: 5672
+  - Porta de Gerenciamento: 15672
 
-## 📡 API Endpoints
+## 📡 Endpoints da API
 
-### Product Service (`/api/products`)
-- `GET /` - List all products
-- `GET /{id}` - Get product by ID
-- `POST /` - Create new product
-- `PUT /{id}` - Update product
-- `DELETE /{id}` - Delete product
+### Serviço de Produtos (`/api/products`)
+- `GET /` - Listar todos os produtos
+- `GET /{id}` - Buscar produto por ID
+- `POST /` - Criar novo produto
+- `PUT /{id}` - Atualizar produto
+- `DELETE /{id}` - Excluir produto
 
-### Price Service (`/api/prices`)
-- `GET /average` - Get average product price
-- `GET /most-expensive` - Get most expensive product
-- `POST /calculate` - Calculate price with discounts
+### Serviço de Preços (`/api/prices`)
+- `GET /average` - Obter preço médio dos produtos
+- `GET /most-expensive` - Obter produto mais caro
+- `POST /calculate` - Calcular preço com descontos
 
-### Notification Service (`/api/notifications`)
-- `POST /subscribe` - Subscribe to notifications
-- `POST /notify` - Send notification
+### Serviço de Notificações (`/api/notifications`)
+- `POST /subscribe` - Inscrever-se para notificações
+- `POST /notify` - Enviar notificação
 
-## 🎯 Design Patterns & Methodologies
+## 🎯 Padrões de Projeto & Metodologias
 
-### Architecture Patterns
-- **Microservices Architecture**
-- **Event-Driven Architecture** using RabbitMQ
-- **API Gateway Pattern** using Nginx
-- **Circuit Breaker** for service resilience
+### Padrões de Arquitetura
+- **Arquitetura de Microsserviços**
+- **Arquitetura Orientada a Eventos** usando RabbitMQ
+- **Padrão API Gateway** usando Nginx
+- **Circuit Breaker** para resiliência de serviços
 
-### Design Patterns
-- **Repository Pattern** - Data access abstraction
-- **Factory Pattern** - Object creation
-- **Builder Pattern** - Complex object construction
-- **Strategy Pattern** - Price calculation strategies
-- **Observer Pattern** - Notification system
+### Padrões de Projeto
+- **Padrão Repository** - Abstração de acesso a dados
+- **Padrão Factory** - Criação de objetos
+- **Padrão Builder** - Construção de objetos complexos
+- **Padrão Strategy** - Estratégias de cálculo de preços
+- **Padrão Observer** - Sistema de notificações
 
-### Development Methodologies
+### Metodologias de Desenvolvimento
 - **Domain-Driven Design (DDD)**
 - **Test-Driven Development (TDD)**
-- **SOLID Principles**
-- **Clean Architecture**
-- **12-Factor App** methodology
+- **Princípios SOLID**
+- **Arquitetura Limpa**
+- **Metodologia 12-Factor App**
 
-## 🧪 Testing
+## 🧪 Testes
 
-### Backend Testing
+### Testes Backend
 ```bash
 ./mvnw clean test
 ```
 
-### Frontend Testing
+### Testes Frontend
 ```bash
 npm test
 ```
 
-## 📦 Project Structure
+## 📦 Estrutura do Projeto
 
 ```
 .
@@ -155,7 +206,7 @@ npm test
 └── docker-compose.yml
 ```
 
-## 🌐 Environment Variables
+## 🌐 Variáveis de Ambiente
 
 ### Frontend
 - `VITE_API_URL=/api`
@@ -166,33 +217,33 @@ npm test
 - `POSTGRES_HOST=postgres`
 - `RABBITMQ_HOST=rabbitmq`
 
-## 🔒 Security
+## 🔒 Segurança
 
-- CORS configuration
-- Input validation
-- Rate limiting
-- Security headers
-- HTTPS ready
+- Configuração CORS
+- Validação de entrada
+- Limitação de taxa
+- Headers de segurança
+- Pronto para HTTPS
 
-## 🌟 Features
+## 🌟 Funcionalidades
 
-- Responsive design
-- Real-time price updates
-- Async notification system
-- Comprehensive error handling
-- Detailed logging
-- Performance monitoring
-- Database migrations
-- API documentation
+- Design responsivo
+- Atualizações de preço em tempo real
+- Sistema de notificação assíncrono
+- Tratamento abrangente de erros
+- Logging detalhado
+- Monitoramento de performance
+- Migrações de banco de dados
+- Documentação da API
 
-## 🤝 Contributing
+## 🤝 Contribuindo
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+1. Faça um fork do repositório
+2. Crie uma branch para sua feature
+3. Faça commit das suas alterações
+4. Faça push para a branch
+5. Crie um Pull Request
 
-## 📝 License
+## 📝 Licença
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para detalhes.
