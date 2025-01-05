@@ -2,48 +2,89 @@ import axios from 'axios';
 import { Product } from '../types/Product';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
-const PRICE_API_URL = import.meta.env.VITE_PRICE_API_URL || '/api/prices';
 
 const productApi = axios.create({
-    baseURL: API_URL
+    baseURL: API_URL + '/products'
 });
 
 const priceApi = axios.create({
-    baseURL: PRICE_API_URL
+    baseURL: API_URL + '/prices'
 });
 
 export const ProductService = {
     getAllProducts: async () => {
-        const response = await productApi.get<Product[]>('/products');
-        return response.data;
+        try {
+            console.log('Fetching all products...');
+            const response = await productApi.get<Product[]>('');  
+            console.log('Products response:', response);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            return [];
+        }
     },
 
     getProduct: async (id: number) => {
-        const response = await productApi.get<Product>(`/products/${id}`);
+        const response = await productApi.get<Product>(`/${id}`);
         return response.data;
     },
 
     createProduct: async (product: Omit<Product, 'id'>) => {
-        const response = await productApi.post<Product>('/products', product);
+        const response = await productApi.post<Product>('', product);  
         return response.data;
     },
 
-    updateProduct: async (id: number, product: Product) => {
-        const response = await productApi.put<Product>(`/products/${id}`, product);
+    updateProduct: async (id: number, product: Omit<Product, 'id'>) => {
+        const response = await productApi.put<Product>(`/${id}`, product);
         return response.data;
     },
 
     deleteProduct: async (id: number) => {
-        await productApi.delete(`/products/${id}`);
+        await productApi.delete(`/${id}`);
     },
 
     getMostExpensiveProduct: async () => {
-        const response = await priceApi.get<Product>('/most-expensive');
-        return response.data;
+        try {
+            console.log('Fetching most expensive product...');
+            const response = await priceApi.get<Product>('/most-expensive');
+            console.log('Most expensive product raw response:', response);
+            if (!response.data) {
+                console.warn('Most expensive product response is empty');
+                return null;
+            }
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching most expensive product:', error);
+            return null;
+        }
     },
 
     getAveragePrice: async () => {
-        const response = await priceApi.get<string>('/average');
-        return parseFloat(response.data);
+        try {
+            console.log('Fetching average price...');
+            const response = await priceApi.get<{ average: number } | number>('/average');
+            console.log('Average price raw response:', response);
+            
+            if (!response.data) {
+                console.warn('Average price response is empty');
+                return 0;
+            }
+
+            if (typeof response.data === 'number') {
+                console.log('Response is direct number:', response.data);
+                return response.data;
+            }
+
+            if (typeof response.data === 'object' && 'average' in response.data) {
+                console.log('Response is object with average:', response.data.average);
+                return response.data.average;
+            }
+
+            console.error('Unexpected response format:', response.data);
+            return 0;
+        } catch (error) {
+            console.error('Error fetching average price:', error);
+            return 0;
+        }
     }
 };

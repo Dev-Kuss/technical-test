@@ -8,15 +8,19 @@ export default defineConfig({
     port: 3000,
     host: true,
     proxy: {
-      '/api': {
+      '/api/products': {
         target: 'http://product-service:8080',
         changeOrigin: true,
+        secure: false,
+        ws: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       },
-      '/prices': {
+      '/api/prices': {
         target: 'http://price-service:8081',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/prices/, '')
+        secure: false,
+        ws: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   },

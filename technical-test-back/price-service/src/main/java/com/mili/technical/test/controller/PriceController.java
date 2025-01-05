@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/prices")
@@ -31,15 +32,24 @@ public class PriceController {
         return ResponseEntity.ok(priceCalculationService.calculatePrice(request));
     }
     
-    @GetMapping("/most-expensive")
+    @GetMapping(value = "/most-expensive", produces = "application/json")
     @Operation(summary = "Get the most expensive product")
     public ResponseEntity<Product> getMostExpensiveProduct() {
-        return ResponseEntity.ok(priceService.getMostExpensiveProduct());
+        try {
+            return ResponseEntity.ok(priceService.getMostExpensiveProduct());
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
     
-    @GetMapping("/average")
+    @GetMapping(value = "/average", produces = "application/json")
     @Operation(summary = "Get the average price of all products")
-    public ResponseEntity<BigDecimal> getAveragePrice() {
-        return ResponseEntity.ok(priceService.getAveragePrice());
+    public ResponseEntity<Map<String, Double>> getAveragePrice() {
+        try {
+            BigDecimal avgPrice = priceService.getAveragePrice();
+            return ResponseEntity.ok(Map.of("average", avgPrice.doubleValue()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.ok(Map.of("average", 0.0));
+        }
     }
 }

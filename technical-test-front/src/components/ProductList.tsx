@@ -41,23 +41,66 @@ export const ProductList = ({ onEditProduct, refreshTrigger }: ProductListProps)
 
     const loadProducts = async () => {
         try {
-            const [productsData, avgPrice, expensiveProduct] = await Promise.all([
-                ProductService.getAllProducts(),
-                ProductService.getAveragePrice(),
-                ProductService.getMostExpensiveProduct()
-            ]);
-            
+            console.log('Loading products...');
+            const productsData = await ProductService.getAllProducts();
+            console.log('Products loaded:', productsData);
             setProducts(productsData);
-            setAveragePrice(avgPrice);
-            setMostExpensive(expensiveProduct);
+            
+            try {
+                console.log('Loading average price...');
+                const avgPrice = await ProductService.getAveragePrice();
+                console.log('Average price loaded:', avgPrice, typeof avgPrice);
+                if (avgPrice === 0) {
+                    console.warn('Average price is 0, this might be incorrect');
+                }
+                setAveragePrice(avgPrice);
+                console.log('Average price state updated:', avgPrice);
+            } catch (error) {
+                console.error('Error loading average price:', error);
+                setAveragePrice(0);
+            }
+            
+            try {
+                console.log('Loading most expensive product...');
+                const expensiveProduct = await ProductService.getMostExpensiveProduct();
+                console.log('Most expensive product loaded:', expensiveProduct);
+                if (!expensiveProduct) {
+                    console.warn('Most expensive product is null');
+                }
+                setMostExpensive(expensiveProduct);
+                if (expensiveProduct) {
+                    console.log('Most expensive product price:', expensiveProduct.price);
+                }
+            } catch (error) {
+                console.error('Error loading most expensive product:', error);
+                setMostExpensive(null);
+            }
         } catch (error) {
             console.error('Error loading products:', error);
+            setProducts([]);
+            setAveragePrice(0);
+            setMostExpensive(null);
         }
     };
 
+    const formatPrice = (price: number | null | undefined): string => {
+        console.log('Formatting price:', price, typeof price);
+        const num = Number(price);
+        console.log('Converted to number:', num, typeof num);
+        const formatted = isNaN(num) ? '0.00' : num.toFixed(2);
+        console.log('Formatted price:', formatted);
+        return formatted;
+    };
+
     useEffect(() => {
+        console.log('ProductList mounted or refreshTrigger changed');
         loadProducts();
     }, [refreshTrigger]);
+
+    useEffect(() => {
+        console.log('Statistics updated - Average Price:', averagePrice);
+        console.log('Statistics updated - Most Expensive:', mostExpensive);
+    }, [averagePrice, mostExpensive]);
 
     const handleDeleteClick = (id: number) => {
         setProductToDelete(id);
@@ -89,11 +132,11 @@ export const ProductList = ({ onEditProduct, refreshTrigger }: ProductListProps)
                     Statistics
                 </Typography>
                 <Typography variant="subtitle1">
-                    Average Price: ${averagePrice.toFixed(2)}
+                    Average Price: ${formatPrice(averagePrice)}
                 </Typography>
                 {mostExpensive && (
                     <Typography variant="subtitle1">
-                        Most Expensive Product: {mostExpensive.name} (${calculateTotalPrice(mostExpensive).toFixed(2)})
+                        Most Expensive Product: {mostExpensive.name} (${formatPrice(calculateTotalPrice(mostExpensive))})
                     </Typography>
                 )}
             </Box>
@@ -116,9 +159,9 @@ export const ProductList = ({ onEditProduct, refreshTrigger }: ProductListProps)
                             <TableRow key={product.id}>
                                 <TableCell>{product.name}</TableCell>
                                 <TableCell>{product.product_type}</TableCell>
-                                <TableCell>${product.price.toFixed(2)}</TableCell>
-                                <TableCell>${calculateShippingCost(product).toFixed(2)}</TableCell>
-                                <TableCell>${calculateTotalPrice(product).toFixed(2)}</TableCell>
+                                <TableCell>${formatPrice(product.price)}</TableCell>
+                                <TableCell>${formatPrice(calculateShippingCost(product))}</TableCell>
+                                <TableCell>${formatPrice(calculateTotalPrice(product))}</TableCell>
                                 <TableCell>
                                     <Chip 
                                         label={product.onSale ? "On Sale" : "Regular Price"}

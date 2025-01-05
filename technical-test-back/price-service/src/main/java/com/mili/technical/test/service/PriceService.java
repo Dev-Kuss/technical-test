@@ -23,24 +23,42 @@ public class PriceService {
     }
 
     public Product getMostExpensiveProduct() {
-        Product[] products = restTemplate.getForObject(productServiceUrl + "/api/products", Product[].class);
-        return Arrays.stream(products)
-                .max(Comparator.comparing(Product::getPrice))
-                .orElseThrow(() -> new RuntimeException("No products found"));
+        try {
+            Product[] products = restTemplate.getForObject(productServiceUrl + "/api/products", Product[].class);
+            if (products == null || products.length == 0) {
+                throw new RuntimeException("No products found");
+            }
+            return Arrays.stream(products)
+                    .filter(p -> p.getPrice() != null)
+                    .max(Comparator.comparing(Product::getPrice))
+                    .orElseThrow(() -> new RuntimeException("No products with valid prices found"));
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching most expensive product: " + e.getMessage(), e);
+        }
     }
 
     public BigDecimal getAveragePrice() {
-        Product[] products = restTemplate.getForObject(productServiceUrl + "/api/products", Product[].class);
-        List<Product> productList = Arrays.asList(products);
-        
-        if (productList.isEmpty()) {
-            throw new RuntimeException("No products found");
+        try {
+            Product[] products = restTemplate.getForObject(productServiceUrl + "/api/products", Product[].class);
+            if (products == null || products.length == 0) {
+                throw new RuntimeException("No products found");
+            }
+
+            List<Product> productList = Arrays.stream(products)
+                    .filter(p -> p.getPrice() != null)
+                    .toList();
+            
+            if (productList.isEmpty()) {
+                throw new RuntimeException("No products with valid prices found");
+            }
+
+            BigDecimal totalPrice = productList.stream()
+                    .map(Product::getPrice)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            return totalPrice.divide(BigDecimal.valueOf(productList.size()), 2, RoundingMode.HALF_UP);
+        } catch (Exception e) {
+            throw new RuntimeException("Error calculating average price: " + e.getMessage(), e);
         }
-
-        BigDecimal totalPrice = productList.stream()
-                .map(Product::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return totalPrice.divide(BigDecimal.valueOf(productList.size()), 2, RoundingMode.HALF_UP);
     }
 }
